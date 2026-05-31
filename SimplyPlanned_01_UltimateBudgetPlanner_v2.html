@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Budget Planner — Simply Planned by Anna</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f9fafb;color:#111;padding:12px;max-width:900px;margin:0 auto}
+:root{--main:#f2a7c3;--dark:#3d0c24;--mid:#c0437a;--pale:#fde8f2;--light:#fbeaf0}
+.theme-mint{--main:#9FE1CB;--dark:#04342C;--mid:#0F6E56;--pale:#E1F5EE;--light:#f0faf6}
+.theme-lavender{--main:#C9B8E8;--dark:#1E0A40;--mid:#4A25A0;--pale:#EDE8F8;--light:#f5f2fd}
+.theme-peach{--main:#F5C4B3;--dark:#4A1B0C;--mid:#993C1D;--pale:#FAECE7;--light:#fef6f3}
+.theme-navy{--main:#2D3F6A;--dark:#F5D87A;--mid:#F5D87A;--pale:#1E2A45;--light:#1a2340}
+.hdr{background:var(--main);border-radius:10px;padding:14px 18px;margin-bottom:8px}
+.hdr h1{font-size:16px;font-weight:700;color:var(--dark)}
+.hdr p{font-size:11px;color:var(--mid);margin-top:2px}
+.theme-bar{display:flex;gap:6px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.theme-bar span{font-size:11px;color:#777;margin-right:4px}
+.tc{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.15s}
+.tc.active{border-color:#333;transform:scale(1.2)}
+.tabs{display:flex;gap:2px;border-bottom:2px solid var(--main);flex-wrap:wrap;padding-top:6px}
+.tb{padding:7px 12px;border:none;background:none;cursor:pointer;font-size:12px;font-weight:700;color:#555;border-radius:6px 6px 0 0;transition:all 0.15s;white-space:nowrap}
+.tb:hover{background:var(--pale);color:var(--mid)}
+.tb.on{background:var(--main);color:var(--dark)}
+.pane{display:none;padding:1rem 0}.pane.on{display:block}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:1rem}
+.sc{background:#f3f4f6;border-radius:8px;padding:10px 12px}
+.sl{font-size:11px;color:#777;margin-bottom:4px}
+.sv{font-size:18px;font-weight:700}
+.sv.pos{color:#1a7a4a}.sv.neg{color:#b03030}.sv.col{color:var(--mid)}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:1rem 1.1rem;margin-bottom:.8rem}
+.ct{font-size:13px;font-weight:700;color:#111;margin-bottom:.8rem}
+.ai{width:100%;padding:6px 8px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;text-align:right}
+.ai:focus{outline:none;border-color:var(--main)}
+.mi{padding:6px 8px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;width:100%}
+.add-btn{width:100%;padding:7px;background:var(--main);border:none;border-radius:6px;font-size:12px;color:var(--dark);cursor:pointer;font-weight:700}
+.add-btn:hover{opacity:0.85}
+.arb{background:none;border:1px dashed #d1d5db;border-radius:6px;padding:6px 10px;font-size:11px;color:#777;cursor:pointer;display:flex;align-items:center;gap:4px;margin-top:4px}
+.arb:hover{border-color:var(--main);color:var(--mid);background:var(--pale)}
+.db{background:none;border:none;cursor:pointer;color:#aaa;font-size:12px;padding:2px 4px}
+.db:hover{color:var(--mid)}
+.div{border:none;border-top:1px solid #e5e7eb;margin:8px 0}
+.tr{display:flex;justify-content:space-between;font-weight:700;font-size:13px;padding:5px 0 0}
+.bar-bg{background:#e5e7eb;border-radius:99px;height:9px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;background:var(--main);transition:width 0.4s}
+.bar-fill.grn{background:#5DCAA5}
+.mot{font-size:11px;font-style:italic;color:var(--mid);padding:8px 10px;background:var(--pale);border-radius:6px;margin-top:.8rem}
+.msel{padding:5px 8px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;margin-bottom:.8rem;cursor:pointer}
+.rg{display:grid;grid-template-columns:1fr 120px;gap:8px;align-items:center;margin-bottom:6px}
+.rl{font-size:12px;color:#111}
+.etbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.etbl th{font-size:11px;font-weight:700;color:#777;padding:4px 6px;text-align:left;border-bottom:1px solid #e5e7eb}
+.etbl td{padding:6px 6px;border-bottom:1px solid #e5e7eb;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{font-size:10px;padding:2px 6px;border-radius:99px;background:var(--pale);color:var(--mid);white-space:nowrap}
+.ann-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.ann-cell{border:1px solid #e5e7eb;border-radius:8px;padding:8px;cursor:pointer;transition:all 0.15s}
+.ann-cell:hover,.ann-cell.cur{border-color:var(--mid);background:var(--pale)}
+.mort-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mort-res{background:#f3f4f6;border-radius:8px;padding:10px 12px;margin-top:.8rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.mort-rl{font-size:11px;color:#777}
+.mort-rv{font-size:16px;font-weight:700;color:var(--mid)}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>Ultimate Budget Planner</h1>
+  <p>Simply Planned by Anna — Dashboard · Budget · Annual · Expenses · Debt · Sinking Funds · Bills · Mortgage</p>
+</div>
+<div class="theme-bar">
+  <span>Theme:</span>
+  <div class="tc active" style="background:#f2a7c3" title="Pink" onclick="setTheme('','#f2a7c3',this)"></div>
+  <div class="tc" style="background:#9FE1CB" title="Mint" onclick="setTheme('theme-mint','#9FE1CB',this)"></div>
+  <div class="tc" style="background:#C9B8E8" title="Lavender" onclick="setTheme('theme-lavender','#C9B8E8',this)"></div>
+  <div class="tc" style="background:#F5C4B3" title="Peach" onclick="setTheme('theme-peach','#F5C4B3',this)"></div>
+  <div class="tc" style="background:#2D3F6A" title="Navy" onclick="setTheme('theme-navy','#2D3F6A',this)"></div>
+</div>
+<div class="tabs">
+  <button class="tb on" onclick="sw('dash',this)">Dashboard</button>
+  <button class="tb" onclick="sw('budget',this)">Budget</button>
+  <button class="tb" onclick="sw('annual',this)">Annual</button>
+  <button class="tb" onclick="sw('exp',this)">Expenses</button>
+  <button class="tb" onclick="sw('debt',this)">Debt</button>
+  <button class="tb" onclick="sw('sink',this)">Sinking Funds</button>
+  <button class="tb" onclick="sw('bills',this)">Bills</button>
+  <button class="tb" onclick="sw('mort',this)">Mortgage</button>
+</div>
+
+<div id="pane-dash" class="pane on">
+  <div class="sg">
+    <div class="sc"><div class="sl">Total income</div><div class="sv pos" id="d-inc">$0</div></div>
+    <div class="sc"><div class="sl">Total expenses</div><div class="sv neg" id="d-exp">$0</div></div>
+    <div class="sc"><div class="sl">Remaining</div><div class="sv" id="d-bal">$0</div></div>
+    <div class="sc"><div class="sl">Savings goal</div><div class="sv col" id="d-goal">$0</div></div>
+    <div class="sc"><div class="sl">Total debt</div><div class="sv neg" id="d-debt">$0</div></div>
+    <div class="sc"><div class="sl">Sinking funds</div><div class="sv col" id="d-sink">$0</div></div>
+  </div>
+  <div class="card"><div class="ct">Savings progress</div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:#777;margin-bottom:4px"><span>Saved toward goal</span><span id="d-savepct">0%</span></div>
+    <div class="bar-bg"><div class="bar-fill" id="d-savebar" style="width:0%"></div></div>
+    <div style="margin-top:10px;display:flex;justify-content:space-between;font-size:11px;color:#777;margin-bottom:4px"><span>Debt paid off</span><span id="d-debtpct">0%</span></div>
+    <div class="bar-bg"><div class="bar-fill grn" id="d-debtbar" style="width:0%"></div></div>
+  </div>
+  <div class="card"><div class="ct">Bills due this week</div><div id="d-bills"><p style="font-size:12px;color:#777">No bills added yet.</p></div></div>
+  <div class="mot" id="d-mot">Every dollar tracked is a step closer to your dreams. You've got this!</div>
+</div>
+
+<div id="pane-budget" class="pane">
+  <select class="msel" id="bud-month" onchange="recalc()"><option>January</option><option>February</option><option>March</option><option>April</option><option>May</option><option>June</option><option>July</option><option>August</option><option>September</option><option>October</option><option>November</option><option>December</option></select>
+  <div class="card"><div class="ct">Income</div>
+    <div id="inc-rows">
+      <div class="rg"><span class="rl">Primary salary</span><input class="ai" type="number" placeholder="0.00" oninput="recalc()"></div>
+      <div class="rg"><span class="rl">Secondary income</span><input class="ai" type="number" placeholder="0.00" oninput="recalc()"></div>
+    </div>
+    <button class="arb" onclick="addBRow('inc-rows')">+ Add income</button>
+    <div class="div"></div>
+    <div class="tr"><span>Total income</span><span style="color:#1a7a4a" id="b-inc">$0.00</span></div>
+  </div>
+  <div class="card"><div class="ct">Expenses</div>
+    <div id="exp-rows">
+      <div class="rg"><span class="rl">Rent / Mortgage</span><input class="ai" type="number" placeholder="0.00" oninput="recalc()"></div>
+      <div class="rg"><span class="rl">Groceries</span><input class="ai" type="number" placeholder="0.00" oninput="recalc()"></div>
+      <div class="rg"><span class="rl">Utilities</span><input class="ai" type="number" placeholder="0.00" oninput="recalc()"></div>
+      <div class="rg"><span class="rl">Transport</span><input class="ai" type="number" placeholder="0.00" oninput="recalc()"></div>
+    </div>
+    <button class="arb" onclick="addBRow('exp-rows')">+ Add expense</button>
+    <div class="div"></div>
+    <div class="tr"><span>Total expenses</span><span style="color:#b03030" id="b-exp">$0.00</span></div>
+  </div>
+  <div class="card"><div class="ct">Savings goal</div>
+    <div class="rg"><span class="rl">Monthly target</span><input class="ai" type="number" placeholder="0.00" id="savgoal" oninput="recalc()"></div>
+    <div class="div"></div>
+    <div class="tr"><span>Remaining balance</span><span id="b-bal" style="color:var(--mid)">$0.00</span></div>
+  </div>
+</div>
+
+<div id="pane-annual" class="pane">
+  <div class="ann-grid" id="ann-grid"></div>
+  <div class="card" style="margin-top:.8rem">
+    <div class="sg" style="margin-bottom:0">
+      <div class="sc"><div class="sl">Annual income</div><div class="sv pos" id="ann-inc">$0</div></div>
+      <div class="sc"><div class="sl">Annual expenses</div><div class="sv neg" id="ann-exp">$0</div></div>
+      <div class="sc"><div class="sl">Net balance</div><div class="sv" id="ann-bal">$0</div></div>
+    </div>
+  </div>
+  <div class="card" id="ann-edit" style="display:none">
+    <div class="ct" id="ann-edit-title">Edit month</div>
+    <div class="rg"><span class="rl">Income ($)</span><input class="ai" type="number" id="ann-inc-in" placeholder="0" oninput="saveAnn()"></div>
+    <div class="rg"><span class="rl">Expenses ($)</span><input class="ai" type="number" id="ann-exp-in" placeholder="0" oninput="saveAnn()"></div>
+  </div>
+</div>
+
+<div id="pane-exp" class="pane">
+  <div class="card">
+    <div style="display:grid;grid-template-columns:1fr 100px 90px 60px;gap:6px;align-items:end">
+      <div><div style="font-size:10px;color:#777;margin-bottom:2px">Description</div><input id="e-desc" class="ai" type="text" placeholder="e.g. Woolworths" style="text-align:left;width:100%"></div>
+      <div><div style="font-size:10px;color:#777;margin-bottom:2px">Category</div><select id="e-cat" class="mi" style="padding:6px 8px"><option>Food</option><option>Transport</option><option>Bills</option><option>Shopping</option><option>Health</option><option>Entertainment</option><option>Other</option></select></div>
+      <div><div style="font-size:10px;color:#777;margin-bottom:2px">Amount ($)</div><input id="e-amt" class="ai" type="number" placeholder="0.00" style="width:100%"></div>
+      <div><div style="font-size:10px;margin-bottom:2px">&nbsp;</div><button onclick="addExp()" class="add-btn" style="padding:6px">Add</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <table class="etbl">
+      <thead><tr><th style="width:15%">Date</th><th style="width:38%">Description</th><th style="width:22%">Category</th><th style="width:18%;text-align:right">Amount</th><th style="width:7%"></th></tr></thead>
+      <tbody id="e-tbody"><tr><td colspan="5" style="text-align:center;padding:14px;color:#777;font-size:12px">No expenses yet.</td></tr></tbody>
+    </table>
+    <div class="div"></div>
+    <div class="tr"><span>Total spent</span><span style="color:#b03030" id="e-total">$0.00</span></div>
+  </div>
+</div>
+
+<div id="pane-debt" class="pane">
+  <div class="card">
+    <div style="display:grid;grid-template-columns:1fr 90px 80px 80px 70px;gap:6px;align-items:end;flex-wrap:wrap">
+      <div><div style="font-size:10px;color:#777;margin-bottom:2px">Debt name</div><input id="dt-name" class="ai" type="text" placeholder="e.g. Visa" style="text-align:left;width:100%"></div>
+      <div><div style="font-size:10px;color:#777;margin-bottom:2px">Balance ($)</div><input id="dt-bal" class="ai" type="number" placeholder="0" style="width:100%"></div>
+      <div><div style="font-size:10px;color:#777;margin-bottom:2px">Original ($)</div><input id="dt-orig" class="ai" type="number" placeholder="0" style="width:100%"></div>
+      <div><div style="font-size:10px;color:#777;margin-bottom:2px">Rate (%)</div><input id="dt-rate" class="ai" type="number" placeholder="0" style="width:100%"></div>
+      <div><div style="font-size:10px;margin-bottom:2px">&nbsp;</div><button onclick="addDebt()" class="add-btn" style="padding:6px">Add</button></div>
+    </div>
+  </div>
+  <div class="card"><div id="debt-list"><p style="font-size:12px;color:#777">No debts yet.</p></div>
+    <div class="div"></div>
+    <div class="tr"><span>Total debt</span><span style="color:#b03030" id="dt-total">$0</span></div>
+  </div>
+</div>
+
+<div id="pane-sink" class="pane">
+  <div class="card">
+    <div style="display:grid;grid-template-columns:1fr 90px 90px 70px;gap:6px;align-items:end">
+      <div><div style="font-size:10px;color:#777;margin-bottom:2px">Fund name</div><input id="sf-name" class="ai" type="text" placeholder="e.g. Holiday" style="text-align:left;width:100%"></div>
+      <div><div style="font-size:10px;color:#777;margin-bottom:2px">Goal ($)</div><input id="sf-goal" class="ai" type="number" placeholder="0" style="width:100%"></div>
+      <div><div style="font-size:10px;color:#777;margin-bottom:2px">Saved ($)</div><input id="sf-saved" class="ai" type="number" placeholder="0" style="width:100%"></div>
+      <div><div style="font-size:10px;margin-bottom:2px">&nbsp;</div><button onclick="addSink()" class="add-btn" style="padding:6px">Add</button></div>
+    </div>
+  </div>
+  <div class="card"><div id="sf-list"><p style="font-size:12px;color:#777">No funds yet.</p></div>
+    <div class="div"></div>
+    <div class="tr"><span>Total saved</span><span style="color:var(--mid)" id="sf-total">$0</span></div>
+  </div>
+</div>
+
+<div id="pane-bills" class="pane">
+  <div class="card">
+    <div style="display:grid;grid-template-columns:1fr 80px 70px 90px 70px;gap:6px;align-items:end;flex-wrap:wrap">
+      <div><div style="font-size:10px;color:#777;margin-bottom:2px">Bill name</div><input id="bl-name" class="ai" type="text" placeholder="e.g. Netflix" style="text-align:left;width:100%"></div>
+      <div><div style="font-size:10px;color:#777;margin-bottom:2px">Amount ($)</div><input id="bl-amt" class="ai" type="number" placeholder="0" style="width:100%"></div>
+      <div><div style="font-size:10px;color:#777;margin-bottom:2px">Due day</div><input id="bl-day" class="ai" type="number" placeholder="1-31" min="1" max="31" style="width:100%"></div>
+      <div><div style="font-size:10px;color:#777;margin-bottom:2px">Frequency</div><select id="bl-freq" class="mi" style="padding:6px 8px"><option>Monthly</option><option>Weekly</option><option>Fortnightly</option><option>Quarterly</option><option>Annually</option></select></div>
+      <div><div style="font-size:10px;margin-bottom:2px">&nbsp;</div><button onclick="addBill()" class="add-btn" style="padding:6px">Add</button></div>
+    </div>
+  </div>
+  <div class="card"><div id="bill-list"><p style="font-size:12px;color:#777">No bills yet.</p></div>
+    <div class="div"></div>
+    <div class="tr"><span>Monthly bills total</span><span style="color:#b03030" id="bl-total">$0</span></div>
+  </div>
+</div>
+
+<div id="pane-mort" class="pane">
+  <div class="card">
+    <div class="mort-grid">
+      <div><div style="font-size:10px;color:#777;margin-bottom:3px">Loan amount ($)</div><input id="m-p" class="mi" type="number" placeholder="450000" oninput="calcMort()"></div>
+      <div><div style="font-size:10px;color:#777;margin-bottom:3px">Interest rate (% p.a.)</div><input id="m-r" class="mi" type="number" placeholder="6.0" step="0.1" oninput="calcMort()"></div>
+      <div><div style="font-size:10px;color:#777;margin-bottom:3px">Loan term (years)</div><input id="m-t" class="mi" type="number" placeholder="30" oninput="calcMort()"></div>
+      <div><div style="font-size:10px;color:#777;margin-bottom:3px">Paid so far ($)</div><input id="m-pd" class="mi" type="number" placeholder="0" oninput="calcMort()"></div>
+    </div>
+    <div class="mort-res">
+      <div><div class="mort-rl">Monthly repayment</div><div class="mort-rv" id="m-mnth">$0</div></div>
+      <div><div class="mort-rl">Total interest</div><div class="mort-rv" id="m-int">$0</div></div>
+      <div><div class="mort-rl">Total cost</div><div class="mort-rv" id="m-tot">$0</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:#777;margin-bottom:4px"><span>Paid off</span><span id="m-pct">0%</span></div>
+    <div class="bar-bg"><div class="bar-fill grn" id="m-bar" style="width:0%"></div></div>
+    <div class="mort-res" style="margin-top:.6rem">
+      <div><div class="mort-rl">Remaining</div><div class="mort-rv" id="m-rem">—</div></div>
+      <div><div class="mort-rl">Est. payoff</div><div class="mort-rv" style="font-size:13px" id="m-pay">—</div></div>
+    </div>
+  </div>
+  <div class="mot">Every extra repayment saves you interest and brings freedom closer!</div>
+</div>
+
+<script>
+var expenses=[],debts=[],sinks=[],bills=[],annData={},eid=0,did=0,sid=0,bid=0;
+var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var curAnn=null;
+
+function setTheme(cls,col,el){
+  document.body.className=cls;
+  document.querySelectorAll('.tc').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+}
+
+function sw(id,btn){
+  document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('on')});
+  document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('on')});
+  document.getElementById('pane-'+id).classList.add('on');
+  btn.classList.add('on');
+  if(id==='dash')updateDash();
+  if(id==='annual')renderAnn();
+}
+
+function fmt(n){return '$'+Math.abs(n).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function fmtK(n){return '$'+Math.round(Math.abs(n)).toLocaleString('en-AU')}
+
+function sumIn(cid){var t=0;document.querySelectorAll('#'+cid+' input[type=number]').forEach(function(i){t+=parseFloat(i.value)||0});return t}
+
+function addBRow(cid){
+  var c=document.getElementById(cid),d=document.createElement('div');d.className='rg';
+  var l=document.createElement('input');l.className='ai';l.type='text';l.placeholder='Label';l.style.textAlign='left';l.oninput=recalc;
+  var a=document.createElement('input');a.className='ai';a.type='number';a.placeholder='0.00';a.oninput=recalc;
+  d.appendChild(l);d.appendChild(a);c.appendChild(d);l.focus();
+}
+
+function recalc(){
+  var inc=sumIn('inc-rows'),exp=sumIn('exp-rows'),goal=parseFloat(document.getElementById('savgoal').value)||0,bal=inc-exp;
+  document.getElementById('b-inc').textContent=fmt(inc);
+  document.getElementById('b-exp').textContent=fmt(exp);
+  var be=document.getElementById('b-bal');be.textContent=(bal<0?'-':'')+fmt(bal);be.style.color=bal>=0?'var(--mid)':'#b03030';
+  updateDash();
+}
+
+function addExp(){
+  var desc=document.getElementById('e-desc').value.trim(),cat=document.getElementById('e-cat').value,amt=parseFloat(document.getElementById('e-amt').value)||0;
+  if(!desc||amt<=0){alert('Please enter a description and amount.');return}
+  var now=new Date(),ds=now.getDate()+'/'+(now.getMonth()+1)+'/'+now.getFullYear();
+  expenses.unshift({id:eid++,date:ds,desc:desc,cat:cat,amt:amt});
+  document.getElementById('e-desc').value='';document.getElementById('e-amt').value='';
+  renderExp();updateDash();
+}
+
+function delExp(id){expenses=expenses.filter(function(e){return e.id!==id});renderExp();updateDash()}
+
+function renderExp(){
+  var tbody=document.getElementById('e-tbody'),total=0;
+  if(expenses.length===0){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:14px;color:#777;font-size:12px">No expenses yet.</td></tr>';document.getElementById('e-total').textContent='$0.00';return}
+  tbody.innerHTML=expenses.map(function(e){total+=e.amt;return '<tr><td style="font-size:11px;color:#777">'+e.date+'</td><td title="'+e.desc+'">'+e.desc+'</td><td><span class="badge">'+e.cat+'</span></td><td style="text-align:right;font-weight:700">'+fmt(e.amt)+'</td><td><button class="db" onclick="delExp('+e.id+')">x</button></td></tr>'}).join('');
+  document.getElementById('e-total').textContent=fmt(total);
+}
+
+function addDebt(){
+  var name=document.getElementById('dt-name').value.trim(),bal=parseFloat(document.getElementById('dt-bal').value)||0,orig=parseFloat(document.getElementById('dt-orig').value)||bal,rate=parseFloat(document.getElementById('dt-rate').value)||0;
+  if(!name||bal<=0){alert('Please enter a debt name and balance.');return}
+  debts.push({id:did++,name:name,bal:bal,orig:orig,rate:rate,paid:orig-bal});
+  ['dt-name','dt-bal','dt-orig','dt-rate'].forEach(function(id){document.getElementById(id).value=''});
+  renderDebts();updateDash();
+}
+
+function delDebt(id){debts=debts.filter(function(d){return d.id!==id});renderDebts();updateDash()}
+
+function renderDebts(){
+  var el=document.getElementById('debt-list'),total=0;
+  if(debts.length===0){el.innerHTML='<p style="font-size:12px;color:#777">No debts yet.</p>';document.getElementById('dt-total').textContent='$0';return}
+  el.innerHTML=debts.map(function(d){total+=d.bal;var pct=d.orig>0?Math.min(100,Math.round(((d.orig-d.bal)/d.orig)*100)):0;return '<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><b>'+d.name+'</b><div style="display:flex;gap:6px;align-items:center"><span style="color:#777">'+fmtK(d.bal)+' remaining</span><button class="db" onclick="delDebt('+d.id+')">x</button></div></div><div class="bar-bg"><div class="bar-fill grn" style="width:'+pct+'%"></div></div><div style="font-size:10px;color:#777;margin-top:2px">'+pct+'% paid off</div></div>'}).join('');
+  document.getElementById('dt-total').textContent=fmtK(total);
+}
+
+function addSink(){
+  var name=document.getElementById('sf-name').value.trim(),goal=parseFloat(document.getElementById('sf-goal').value)||0,saved=parseFloat(document.getElementById('sf-saved').value)||0;
+  if(!name||goal<=0){alert('Please enter a fund name and goal.');return}
+  sinks.push({id:sid++,name:name,goal:goal,saved:saved});
+  ['sf-name','sf-goal','sf-saved'].forEach(function(id){document.getElementById(id).value=''});
+  renderSinks();updateDash();
+}
+
+function delSink(id){sinks=sinks.filter(function(s){return s.id!==id});renderSinks();updateDash()}
+
+function renderSinks(){
+  var el=document.getElementById('sf-list'),total=0;
+  if(sinks.length===0){el.innerHTML='<p style="font-size:12px;color:#777">No funds yet.</p>';document.getElementById('sf-total').textContent='$0';return}
+  el.innerHTML=sinks.map(function(s){total+=s.saved;var pct=s.goal>0?Math.min(100,Math.round((s.saved/s.goal)*100)):0;var needed=Math.max(0,s.goal-s.saved);return '<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><b>'+s.name+'</b><div style="display:flex;gap:6px;align-items:center"><span style="color:#777">'+fmtK(s.saved)+' / '+fmtK(s.goal)+'</span><button class="db" onclick="delSink('+s.id+')">x</button></div></div><div class="bar-bg"><div class="bar-fill" style="width:'+pct+'%"></div></div><div style="font-size:10px;color:#777;margin-top:2px">'+pct+'% — '+fmtK(needed)+' to go</div></div>'}).join('');
+  document.getElementById('sf-total').textContent=fmtK(total);
+}
+
+function addBill(){
+  var name=document.getElementById('bl-name').value.trim(),amt=parseFloat(document.getElementById('bl-amt').value)||0,day=parseInt(document.getElementById('bl-day').value)||1,freq=document.getElementById('bl-freq').value;
+  if(!name||amt<=0){alert('Please enter a bill name and amount.');return}
+  bills.push({id:bid++,name:name,amt:amt,day:day,freq:freq,paid:false});
+  ['bl-name','bl-amt','bl-day'].forEach(function(id){document.getElementById(id).value=''});
+  renderBills();updateDash();
+}
+
+function toggleBill(id){var b=bills.find(function(x){return x.id===id});if(b)b.paid=!b.paid;renderBills()}
+function delBill(id){bills=bills.filter(function(b){return b.id!==id});renderBills();updateDash()}
+
+function renderBills(){
+  var el=document.getElementById('bill-list'),total=0;
+  if(bills.length===0){el.innerHTML='<p style="font-size:12px;color:#777">No bills yet.</p>';document.getElementById('bl-total').textContent='$0';return}
+  var sorted=bills.slice().sort(function(a,b){return a.day-b.day});
+  sorted.forEach(function(b){var f=b.freq==='Monthly'?b.amt:b.freq==='Weekly'?b.amt*4.33:b.freq==='Fortnightly'?b.amt*2.17:b.freq==='Quarterly'?b.amt/3:b.amt/12;total+=f});
+  el.innerHTML=sorted.map(function(b){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #e5e7eb;font-size:12px"><div><b>'+b.name+'</b><div style="font-size:10px;color:#777">Day '+b.day+' · '+b.freq+'</div></div><div style="display:flex;align-items:center;gap:6px"><span style="font-size:11px;padding:2px 7px;border-radius:99px;background:'+(b.paid?'#E1F5EE':'#FAECE7')+';color:'+(b.paid?'#085041':'#712B13')+';cursor:pointer" onclick="toggleBill('+b.id+')">'+(b.paid?'Paid':'Due')+'</span><b>'+fmtK(b.amt)+'</b><button class="db" onclick="delBill('+b.id+')">x</button></div></div>'}).join('');
+  document.getElementById('bl-total').textContent=fmtK(total);
+}
+
+function renderAnn(){
+  var grid=document.getElementById('ann-grid');
+  grid.innerHTML=months.map(function(m,i){var d=annData[m]||{inc:0,exp:0};var bal=d.inc-d.exp;return '<div class="ann-cell" id="ann-'+i+'" onclick="editAnn(\''+m+'\','+i+')"><div style="font-size:11px;font-weight:700;color:#111">'+m.substring(0,3)+'</div><div style="font-size:10px;color:#777">In: '+fmtK(d.inc)+'</div><div style="font-size:10px;color:#777">Out: '+fmtK(d.exp)+'</div><div style="font-size:11px;font-weight:700;color:'+(bal>=0?'#1a7a4a':'#b03030');margin-top:2px">'+(bal<0?'-':'')+fmtK(bal)+'</div></div>'}).join('');
+  var ti=0,te=0;months.forEach(function(m){var d=annData[m]||{inc:0,exp:0};ti+=d.inc;te+=d.exp});
+  document.getElementById('ann-inc').textContent=fmtK(ti);
+  document.getElementById('ann-exp').textContent=fmtK(te);
+  var ab=document.getElementById('ann-bal');ab.textContent=(ti-te<0?'-':'')+fmtK(ti-te);ab.className='sv '+(ti-te>=0?'pos':'neg');
+}
+
+function editAnn(month,idx){
+  curAnn=month;
+  document.querySelectorAll('.ann-cell').forEach(function(c){c.classList.remove('cur')});
+  document.getElementById('ann-'+idx).classList.add('cur');
+  var d=annData[month]||{inc:0,exp:0};
+  document.getElementById('ann-edit-title').textContent='Edit: '+month;
+  document.getElementById('ann-inc-in').value=d.inc||'';
+  document.getElementById('ann-exp-in').value=d.exp||'';
+  document.getElementById('ann-edit').style.display='block';
+}
+
+function saveAnn(){
+  if(!curAnn)return;
+  annData[curAnn]={inc:parseFloat(document.getElementById('ann-inc-in').value)||0,exp:parseFloat(document.getElementById('ann-exp-in').value)||0};
+  renderAnn();document.getElementById('ann-'+months.indexOf(curAnn)).classList.add('cur');
+}
+
+function calcMort(){
+  var P=parseFloat(document.getElementById('m-p').value)||0,ar=parseFloat(document.getElementById('m-r').value)||0,yr=parseFloat(document.getElementById('m-t').value)||0,pd=parseFloat(document.getElementById('m-pd').value)||0;
+  if(P<=0||ar<=0||yr<=0){return}
+  var r=(ar/100)/12,n=yr*12,mnth=P*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
+  var tot=mnth*n,interest=tot-P;
+  document.getElementById('m-mnth').textContent='$'+Math.round(mnth).toLocaleString('en-AU');
+  document.getElementById('m-int').textContent='$'+Math.round(interest).toLocaleString('en-AU');
+  document.getElementById('m-tot').textContent='$'+Math.round(tot).toLocaleString('en-AU');
+  var rem=Math.max(0,P-pd),pct=P>0?Math.min(100,Math.round((pd/P)*100)):0;
+  document.getElementById('m-pct').textContent=pct+'%';
+  document.getElementById('m-bar').style.width=pct+'%';
+  document.getElementById('m-rem').textContent='$'+Math.round(rem).toLocaleString('en-AU');
+  if(mnth>0&&rem>0){var ml=Math.ceil(rem/(mnth-(rem*r)));if(ml>0&&ml<1200){var pd2=new Date();pd2.setMonth(pd2.getMonth()+ml);document.getElementById('m-pay').textContent=pd2.toLocaleDateString('en-AU',{month:'short',year:'numeric'})}}
+}
+
+function updateDash(){
+  var inc=sumIn('inc-rows'),exp=sumIn('exp-rows'),goal=parseFloat((document.getElementById('savgoal')||{}).value)||0,bal=inc-exp;
+  var totalDebt=debts.reduce(function(a,d){return a+d.bal},0);
+  var totalOrig=debts.reduce(function(a,d){return a+d.orig},0);
+  var totalSink=sinks.reduce(function(a,s){return a+s.saved},0);
+  document.getElementById('d-inc').textContent=fmtK(inc);
+  document.getElementById('d-exp').textContent=fmtK(exp);
+  var db=document.getElementById('d-bal');db.textContent=(bal<0?'-':'')+fmtK(bal);db.className='sv '+(bal>=0?'pos':'neg');
+  document.getElementById('d-goal').textContent=fmtK(goal);
+  document.getElementById('d-debt').textContent=fmtK(totalDebt);
+  document.getElementById('d-sink').textContent=fmtK(totalSink);
+  var sp=goal>0?Math.min(100,Math.round((bal/goal)*100)):0;if(sp<0)sp=0;
+  document.getElementById('d-savepct').textContent=sp+'%';
+  document.getElementById('d-savebar').style.width=sp+'%';
+  var dp=totalOrig>0?Math.min(100,Math.round(((totalOrig-totalDebt)/totalOrig)*100)):0;if(dp<0)dp=0;
+  document.getElementById('d-debtpct').textContent=dp+'%';
+  document.getElementById('d-debtbar').style.width=dp+'%';
+  var today=new Date().getDate();
+  var soon=bills.filter(function(b){return b.day>=today&&b.day<=today+7&&!b.paid});
+  var bl=document.getElementById('d-bills');
+  if(soon.length===0){bl.innerHTML='<p style="font-size:12px;color:#777">No bills due in the next 7 days.</p>'}
+  else{bl.innerHTML=soon.map(function(b){var d=b.day-today;return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #e5e7eb;font-size:12px"><span><b>'+b.name+'</b></span><span style="color:#777">'+(d===0?'Today':d===1?'Tomorrow':'In '+d+' days')+' — <b>'+fmtK(b.amt)+'</b></span></div>'}).join('')}
+  document.getElementById('d-mot').textContent=bal<0?'Your expenses exceed income this month — let\'s review together!':sp>=100?'You\'ve hit your savings goal! Incredible work!':'Every dollar tracked is a step closer to your dreams. Keep going!';
+}
+
+document.getElementById('bud-month').selectedIndex=new Date().getMonth();
+renderAnn();updateDash();
+</script>
+</body>
+</html>
